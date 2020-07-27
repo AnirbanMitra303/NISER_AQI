@@ -1,8 +1,10 @@
+rm(list=ls())
 rawdat = read.csv("Data_CCU.csv") # read data
 #clean data
 rawdat = rawdat[1:54,]
 cleanup  = data.frame(t = 1:(nrow(rawdat)-1))
 cleanup$daily_cases = diff(rawdat$Total_cumulative_cases_Kolkata)
+library(xts)
 library(pracma)
 cleanup$AQI = movavg(rawdat$AQI[-1],n=8,type = "s")
 cleanup$PM2 = movavg(rawdat$PM2.5.Average.[-1],n=8,type = "s")
@@ -13,78 +15,25 @@ cleanup$SO2 = movavg(rawdat$SO2.Average.[-1],n=8,type = "s")
 cleanup$CO = movavg(rawdat$CO.Average.[-1],n=8,type = "s")
 cleanup$SO2 = movavg(rawdat$SO2.Average.[-1],n=8,type = "s")
 cleanup$O3 = movavg(rawdat$OZONE.Average.[-1],n=8,type = "s")
+#cleanup$date = seq(as.Date("2020/04/22"),as.Date("2020/06/13"),"days")
 cleanup = na.omit(cleanup)
+#cleanup <- xts(select(cleanup,-"date"), order.by=cleanup$date)
 mod_dat = cleanup[2:nrow(cleanup),]
 mod_dat$caseprev = cleanup$daily_cases[1:(nrow(cleanup)-1)]
 
 # time-series plots
-rawdat2 = na.omit(rawdat)
-par(mfrow=c(2,1))
-ts.plot(rawdat2$AQI); ts.plot(cleanup$AQI)
-ts.plot(rawdat2$PM2.5.Average.); ts.plot(cleanup$PM2)
-ts.plot(rawdat2$PM10.Average.); ts.plot(cleanup$PM10)
-
-
-library(mgcv)
-#mod_dat$daily_cases = log(mod_dat$daily_cases)
-mod_dat$caseprev = log(mod_dat$caseprev)
-
-#########################   AQI
-AQI_fit <- gam(daily_cases ~ t + caseprev + AQI,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(AQI_fit)
-summary(AQI_fit)
-
-#########################   PM2
-PM2_fit <- gam(daily_cases ~ t + caseprev + PM2,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(PM2_fit)
-summary(PM2_fit)
-
-#########################   PM10
-PM10_fit <- gam(daily_cases ~ t + caseprev + PM10,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(PM10_fit)
-summary(PM10_fit)
-
-#########################   NO2
-NO2_fit <- gam(daily_cases ~ t + caseprev + NO2,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(NO2_fit)
-summary(NO2_fit)
-
-#########################   NH3
-NH3_fit <- gam(daily_cases ~ t + caseprev + NH3,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(NH3_fit)
-summary(NH3_fit)
-
-
-#########################   SO2
-SO2_fit <- gam(daily_cases ~ t + caseprev + SO2,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(SO2_fit)
-summary(SO2_fit)
-
-#########################   CO
-CO_fit <- gam(daily_cases ~ t + caseprev + CO,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(CO_fit)
-summary(CO_fit)
-
-#########################   O3
-O3_fit <- gam(daily_cases ~ t + caseprev + O3,data = mod_dat,family = poisson(link = "log"),
-               drop.intercept = F, method = 'REML')
-par(mfrow=c(2,2))
-gam.check(O3_fit)
-summary(O3_fit)
-
+rawdat2 = data.frame(day = 1:nrow(rawdat))
+rawdat2$New_cases_WB = rawdat$New_cases_WB
+rawdat2$New_Tests_WB = rawdat$New_Tests_WB
+rawdat2$Total_cumulative_cases_Kolkata = rawdat$Total_cumulative_cases_Kolkata
+rawdat2$AQI = rawdat$AQI
+rawdat2$PM2 = rawdat$PM2.5.Average.
+rawdat2$PM10 = rawdat$PM10.Average.
+rawdat2$NO2  = rawdat$NO2.Average.
+rawdat2$NH3 = rawdat$NH3.Average.
+rawdat2$SO2 = rawdat$SO2.Average.
+rawdat2$CO = rawdat$CO.Average.
+rawdat2$O3 = rawdat$OZONE.Average.
+rawdat2 = na.omit(rawdat2)
 
 
