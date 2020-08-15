@@ -1,5 +1,5 @@
 rm(list=ls())
-rawdat = read.csv("Data_CCU.csv") # read data
+rawdat = read.csv("Data_CCU_ver2.csv") # read data #read.csv("Data_CCU.csv")
 #clean data
 rawdat = rawdat[1:54,]
 cleanup  = data.frame(t = 1:(nrow(rawdat)-1))
