@@ -3,9 +3,9 @@ title: "Modeling results"
 author: "Anirban Mitra"
 date: "8/21/2020"
 output:
-  pdf_document: default
-  html_document: default
   word_document: default
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
