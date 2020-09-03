@@ -1,0 +1,141 @@
+---
+title: "Modeling results"
+author: "Anirban Mitra"
+date: "8/21/2020"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r import_lib, include=FALSE}
+source("C:/MY_DATABASE/NISER_AQI/data_cleaning.R")
+
+library(mgcv)
+library(ggplot2)
+library(GGally)
+
+```
+### Model building summary
+The data corresponds to daily COVID incidents starting from May 5, 2020 until July 31, 2020. We fit Generalized Additive Models with Poisson family (log link) for each of the pollutants having their separate models. Using multiple pollutants in the same model is avoided because of multicollinearity and the possibility that they would overfit. Without loss of generality the model is fitted as follows:
+
+$log(Y_{t}) = \alpha + t + log(Y_{t-1}) + Q_{t} + s(temp_{t}) + s(wind_{t}) + s(hum_{t})$
+
+Here $Y_{t}$ denotes the number of confirmed COVID cases on day $t$. $\alpha$ is the intercept term. $t$ is day $t$ fitted linearly, where $t = 1,2,...,87$. $log(Y_{t-1})$ is also used as feature to include the auto-regressive effect of incidents. $Q_{t}$ represents the $8$-day moving average of the pollutant under consideration, where the moving average is computed over observations ending on day $t$ starting on day $t-7$. It is also fitted linearly and $Q$ will represent one of AQI, PM2.5, PM10, NO2, NH3, SO2, CO, O3. $temp_{t}$, $wind_{t}$, $hum_{t}$ represent the moving average of average temperature, average wind-speed and average humidity, calculated over the same period as $Q$. These three variables are fitted using a thin-plate regression spline. Moving average for the pollutant variables and the meteorological factors are computed because it has been found that the coronavirus has an inclubation period of about two to fourteen days.
+
+The outputs after each of the following models represent the parameter estimates of the pollutant and the corresponding $95\%$ Wald Confidence Intervals:
+```{r AQI}
+AQI_fit <- gam(daily_cases ~ t + caseprev + AQI + s(temp) + s(wind) + s(hum),
+               data = mod_dat,family = poisson(link = "log"),
+               drop.intercept = F, method = 'REML')
+aqi_summ <- summary(AQI_fit)
+est = round(aqi_summ$p.coeff[4],4)
+lci = round(aqi_summ$p.coeff[4] -   1.96*aqi_summ$se[4],4)
+uci = round(aqi_summ$p.coeff[4] + 1.96*aqi_summ$se[4],4)
+paste("AQI:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+```{r PM2}
+PM2_fit <- gam(daily_cases ~ t + caseprev + PM2 + s(temp) + s(wind) + s(hum),
+               data = mod_dat,family = poisson(link = "log"),
+               drop.intercept = F, method = 'REML')
+pm2_summ <- summary(PM2_fit)
+est = round(pm2_summ$p.coeff[4],4)
+lci = round(pm2_summ$p.coeff[4] - 1.96*pm2_summ$se[4],4)
+uci = round(pm2_summ$p.coeff[4] + 1.96*pm2_summ$se[4],4)
+paste("PM 2.5:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+```{r PM10}
+PM10_fit <- gam(daily_cases ~ t + caseprev + PM10 + s(temp) + s(wind) + s(hum),
+                data = mod_dat,family = poisson(link = "log"),
+                drop.intercept = F, method = 'REML')
+pm10_summ <- summary(PM10_fit)
+est = round(pm10_summ$p.coeff[4],4)
+lci = round(pm10_summ$p.coeff[4] - 1.96*pm10_summ$se[4],4)
+uci = round(pm10_summ$p.coeff[4] + 1.96*pm10_summ$se[4],4)
+paste("PM 10:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+
+```
+```{r NO2}
+NO2_fit <- gam(daily_cases ~ t + caseprev + NO2+ s(temp) + s(wind) + s(hum),
+               data = mod_dat,family = poisson(link = "log"),
+               drop.intercept = F, method = 'REML')
+no2_summ <- summary(NO2_fit)
+est = round(no2_summ$p.coeff[4],4)
+lci = round(no2_summ$p.coeff[4] - 1.96*no2_summ$se[4],4)
+uci = round(no2_summ$p.coeff[4] + 1.96*no2_summ$se[4],4)
+paste("NO2:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+```{r NH3}
+NH3_fit <- gam(daily_cases ~ t + caseprev + NH3 + s(temp) + s(wind) + s(hum),
+               data = mod_dat,family = poisson(link = "log"),
+               drop.intercept = F, method = 'REML')
+nh3_summ <- summary(NH3_fit)
+est = round(nh3_summ$p.coeff[4],4)
+lci = round(nh3_summ$p.coeff[4] - 1.96*nh3_summ$se[4],4)
+uci = round(nh3_summ$p.coeff[4] + 1.96*nh3_summ$se[4],4)
+paste("NH3:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+```{r SO2}
+SO2_fit <- gam(daily_cases ~ t + caseprev + SO2 + s(temp) + s(wind) + s(hum),
+               data = mod_dat,family = poisson(link = "log"),
+               drop.intercept = F, method = 'REML')
+so2_summ <- summary(SO2_fit)
+est = round(so2_summ$p.coeff[4],4)
+lci = round(so2_summ$p.coeff[4] - 1.96*so2_summ$se[4],4)
+uci = round(so2_summ$p.coeff[4] + 1.96*so2_summ$se[4],4)
+paste("SO2:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+```{r CO}
+CO_fit <- gam(daily_cases ~ t + caseprev + CO + s(temp) + s(wind) + s(hum),
+              data = mod_dat,family = poisson(link = "log"),
+              drop.intercept = F, method = 'REML')
+co_summ <- summary(CO_fit)
+est = round(co_summ$p.coeff[4],4)
+lci = round(co_summ$p.coeff[4] - 1.96*co_summ$se[4],4)
+uci = round(co_summ$p.coeff[4] + 1.96*co_summ$se[4],4)
+paste("CO:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+```{r O3}
+O3_fit <- gam(daily_cases ~ t + caseprev + O3 + s(temp) + s(wind) + s(hum),
+              data = mod_dat,family = poisson(link = "log"),
+              drop.intercept = F, method = 'REML')
+o3_summ <- summary(O3_fit)
+est = round(o3_summ$p.coeff[4],4)
+lci = round(o3_summ$p.coeff[4] - 1.96*o3_summ$se[4],4)
+uci = round(o3_summ$p.coeff[4] + 1.96*o3_summ$se[4],4)
+paste("O3:","Parameter estimate = ",est, "and CI : [",lci,",",uci,"]")
+```
+Summaries for all the models are below:
+
+```{r, include=TRUE}
+aqi_summ
+pm2_summ
+pm10_summ
+no2_summ
+nh3_summ
+so2_summ
+co_summ
+o3_summ
+
+```
+
+
+The conclusions are as follows: AQI, NO2, NH3, CO, O3 are significant at $5\%$ level. PM 2.5 and SO2 are not significant. PM 10 is not significant at $5\%$ level but significant at $10\%$ level.
+
+### Interpretation of parameters in terms of daily COVID cases:
+
+* Increase in AQI by $1$ unit increases COVID incident by $0.5\%$.
+* Increase in NO2 by $1$ unit increases COVID incident by $3\%$.
+* Increase in NH3 by $1$ unit increases COVID incident by $77\%$.
+* Increase in CO by $1$ unit decreases COVID incident by $5\%$.
+* Increase in O3 by $1$ unit increases COVID incident by $0.9\%$.
+
+The above are calculated as follows. Let's say for any pollutant, without loss of generality, $\hat{\beta}$ be its estimated regression coefficient. Then for unit change in the pollutant controlling for other variables in its model, the incident rate changes by $(\exp(\hat{\beta})-1) \%$.
+```{r pressure, echo=FALSE}
+#library(dplyr)
+#ggpairs(select(mod_dat,-c(t,daily_cases,caseprev)))
+```
+

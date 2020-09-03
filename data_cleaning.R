@@ -1,7 +1,7 @@
 rm(list=ls())
 rawdat = read.csv("Data_CCU_ver2.csv") # read data #read.csv("Data_CCU.csv")
 #clean data
-rawdat = rawdat[1:54,]
+#rawdat = rawdat[1:54,]
 cleanup  = data.frame(t = 1:(nrow(rawdat)-1))
 cleanup$daily_cases = diff(rawdat$Total_cumulative_cases_Kolkata)
 library(xts)
@@ -15,6 +15,10 @@ cleanup$SO2 = movavg(rawdat$SO2.Average.[-1],n=8,type = "s")
 cleanup$CO = movavg(rawdat$CO.Average.[-1],n=8,type = "s")
 cleanup$SO2 = movavg(rawdat$SO2.Average.[-1],n=8,type = "s")
 cleanup$O3 = movavg(rawdat$OZONE.Average.[-1],n=8,type = "s")
+cleanup$temp = movavg(rawdat$Avg_temp[-1],n=8,type = "s")
+cleanup$wind = movavg(rawdat$Avg_wind_speed[-1],n=8,type = "s")
+cleanup$prec =  movavg(rawdat$Precipitation[-1],n=8,type = "s")
+cleanup$hum = movavg(rawdat$Avg_humidity[-1],n=8,type = "s")
 #cleanup$date = seq(as.Date("2020/04/22"),as.Date("2020/06/13"),"days")
 cleanup = na.omit(cleanup)
 #cleanup <- xts(select(cleanup,-"date"), order.by=cleanup$date)
